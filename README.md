@@ -1,2 +1,2 @@
 # DisneyGuide
-Disney Streaming programming challenge
+DSS coding challenge
