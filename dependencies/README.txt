@@ -15,5 +15,9 @@ https://jansson.readthedocs.io/en/2.13/
 GLFW 3.3.2
 https://www.glfw.org/
 
+libjpeg 9d
+http://libjpeg.sourceforge.net/
+
+
 
 All dependencies are precompiled and installed to dependencies directory
