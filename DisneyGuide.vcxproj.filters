@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\curl_http.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\json_parser.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parse_guide.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\decompress_jpeg.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\curl_http.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\json_parser.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parse_guide.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\decompress_jpeg.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{9e69b55f-2a3b-428f-94cc-720895d0f15a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{050973c4-b9ec-4af8-9535-7bd1e69556dc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
