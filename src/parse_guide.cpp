@@ -1,8 +1,10 @@
+// by L. Tochinski 2021
+// Parse Dysney Guide data utility
 
+#include <algorithm>
 #include <iostream>
 #include "curl_http.h"
 #include "json_parser.h"
-#include <algorithm>
 #include "parse_guide.h"
 
 using namespace std;
@@ -13,6 +15,7 @@ using namespace std;
 
 bool get_guide_data(guide_data_type& guide_data)
 {
+	cout << 'o'; // debug progress
 	json_parser root;
 	curl_http curl(HOME_JSON_CURL_BUF_SIZE);
 	const char* url = BASE_URL "/home.json";
@@ -28,8 +31,9 @@ bool get_guide_data(guide_data_type& guide_data)
 	curl_http dynamic_json_curl(DYNAMIC_JSON_CURL_BUF_SIZE);
 	for (auto cont : containers)
 	{
-		string content;
-		cont.get("set/text/title/full/set/default/content", content);
+		cout << 'o'; // debug progress
+		guide_collection_type guide_collection;
+		cont.get("set/text/title/full/set/default/content", guide_collection.title);
 		vector<json_parser> items;
 		string refId;
 		if (cont.get("set/refId", refId))
@@ -58,14 +62,22 @@ bool get_guide_data(guide_data_type& guide_data)
 			item.get("type", guide_item.type);
 			item.get("text/title/full/*/default/content", guide_item.title);
 			item.get("image/tile/1.78/*/default/url", guide_item.img_url);
-			guide_items.push_back(guide_item);
+			guide_collection.items.push_back(guide_item);
 		}
-		guide_data.insert(make_pair(content, guide_items));
+		if (!guide_collection.items.empty())
+		{ 
+			guide_data.push_back(guide_collection);
+		}
+		else
+		{
+			cout << "Empty collection '" << guide_collection.title << "', skipping" << endl;
+		}
 	}
+	cout << endl;
 	return true;
 }
 
-#define __PARSE_GUIDE_UNIT_TEST__
+//#define __PARSE_GUIDE_UNIT_TEST__
 
 #ifdef __PARSE_GUIDE_UNIT_TEST__
 #include <fstream>
@@ -79,8 +91,8 @@ int main(int argc, char * argv[])
 
 	for (auto collection_item : guide_data)
 	{
-		cout << "------> " << collection_item.first << " <------" << endl;
-		for (auto item : collection_item.second)
+		cout << "------> " << collection_item.title << " <------" << endl;
+		for (auto item : collection_item.items)
 		{
 			cout << "title : " << item.title << endl;
 			cout << "ttype : " << item.type << endl;
@@ -104,5 +116,4 @@ int main(int argc, char * argv[])
 	}
 	return 0;
 }
-
 #endif // __PARSE_GUIDE_UNIT_TEST__

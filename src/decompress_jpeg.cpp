@@ -1,66 +1,59 @@
-// jpgtest.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// in-memory jpeg decompress
+// by L. Tochinski, 2021
 
+// TODO: better cleanup on exit
+
+#include <string.h>
 #include <iostream>
-#include <jpeglib.h>
+#include <IL/il.h>
 #include "decompress_jpeg.h"
 
-
 using namespace std;
+
 bool decompress_jpeg(const char* in, int in_size, char* out, int& out_size, int& width, int& height)
 {
-	struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr jerr;
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_decompress(&cinfo);
-	jpeg_mem_src(&cinfo, (unsigned char*)in, in_size);
 
-	bool error = false;
-	if (JPEG_HEADER_OK != jpeg_read_header(&cinfo, TRUE))
+	static bool initialized = false;
+	if (!initialized)
 	{
-		cerr << "doesn't seem jpeg data" << endl;
-		error = true;
+		// init DevIL. This needs to be done only once per application
+		ilInit();
+		initialized = true;
 	}
-	else
+	
+	static unsigned int imageID = 0xffffff;
+	if (imageID == 0xffffff)
 	{
-		jpeg_start_decompress(&cinfo);
-
-		width = cinfo.output_width;
-		height = cinfo.output_height;
-		int pixel_size = cinfo.output_components;
-		int bmp_size = width * height * pixel_size;
-		if (out == 0)
-		{
-			out_size = bmp_size;
-		}
-		else if (out_size < bmp_size)
-		{
-			out_size = bmp_size;
-			cerr << "raw bitmap output buffer is too small" << endl;
-			error = true;
-		}
-		else
-		{
-			// The row_stride is the total number of bytes it takes to store an entire scanline (row). 
-			int row_stride = width * pixel_size;
-			while (cinfo.output_scanline < cinfo.output_height)
-			{
-				unsigned char* buffer_array[1];
-				buffer_array[0] = (unsigned char*)out + (cinfo.output_scanline) * row_stride;
-				if (1 != jpeg_read_scanlines(&cinfo, buffer_array, 1))
-				{
-					cerr << "bad jpeg data" << endl;
-					error = true;
-					break;
-				}
-			}
-		jpeg_finish_decompress(&cinfo);
-		}
+		// generate an image name
+		ilGenImages(1, &imageID);
+		// bind it
+		ilBindImage(imageID);
 	}
-	jpeg_destroy_decompress(&cinfo);
 
-	return !error;
+	ILboolean success = ilLoadL(IL_JPG, in, in_size);
+
+	ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE);
+	// check to see if everything went OK
+	if (!success) {
+		ilDeleteImages(1, &imageID);
+		imageID = 0xffffff;
+		return false;
+	}
+	ilBindImage(imageID);
+	width = ilGetInteger(IL_IMAGE_WIDTH);
+	height = ilGetInteger(IL_IMAGE_HEIGHT);
+	int bmp_data_size = ilGetInteger(IL_IMAGE_SIZE_OF_DATA);
+	if (out_size < bmp_data_size)
+	{
+		cerr << "bmp buffer too small" << endl;
+		return false;
+	}
+	out_size = bmp_data_size;
+	unsigned char* data = ilGetData();
+	memcpy(out, data, out_size);
+	return true;
 }
+
 
 // #define _DECOMPRESS_JPEG_UNIT_TEST_
 

@@ -1,11 +1,13 @@
-// jansson wrapper
+// json parser
 // by L. Tochinski 2021
 
-#include "json_parser.h"
+// TODO: Better jansson's json_t refs handling
+
 #include <iostream>
+#include <jansson.h>
+#include "json_parser.h"
 
 using namespace std;
-
 
 json_parser::json_parser() : json_obj_(0)
 {
@@ -66,7 +68,7 @@ bool json_parser::get(const char* key_path, std::string& val) const
    json_t *json_obj = json_object_get(object, key_name.c_str());
    if(json_obj == 0 || !json_is_string(json_obj)) 
    {
-      cout << key_path << " : - absent" << endl;
+//      cout << key_path << " : - absent" << endl;
       return false;
    }
    val = json_string_value(json_obj);
@@ -135,6 +137,8 @@ bool json_parser::array_get(const char* key_path, std::vector<json_parser>& arra
     return true;
 }
 
+
+// TODO: bug here. returns child's key
 bool json_parser::get_key(string& key) const
 {
     void* iter = json_object_iter(json_obj_);
@@ -182,7 +186,6 @@ int json_parser::parse_keys_from_path(const char* key_path, vector<string>& obj_
     }
     return obj_keys.size();
 }
-
 
 bool json_parser::get_object(vector<string>& obj_keys, json_parser& obj) const
 {

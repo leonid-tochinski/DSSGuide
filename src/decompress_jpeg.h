@@ -1,3 +1,5 @@
+// by L. Tochinski 2021
+
 #ifndef DECOMPRESS_JPEG_H_
 #define DECOMPRESS_JPEG_H_
 

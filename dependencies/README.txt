@@ -15,9 +15,10 @@ https://jansson.readthedocs.io/en/2.13/
 GLFW 3.3.2
 https://www.glfw.org/
 
-libjpeg 9d
-http://libjpeg.sourceforge.net/
+FreeType 2.10.4
+https://www.freetype.org/
 
-
+DevIL 1.8.0 
+http://openil.sourceforge.net/
 
 All dependencies are precompiled and installed to dependencies directory

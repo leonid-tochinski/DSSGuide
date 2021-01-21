@@ -1,4 +1,4 @@
-// curl wrapper
+// curl wrapper 
 // by L. Tochinski 2021
 // inspired by https://niranjanmalviya.wordpress.com/2018/06/23/get-json-data-using-curl/
 
@@ -71,7 +71,6 @@ size_t curl_http::curl_callback(void* ptr, size_t size, size_t nmemb, void* usr)
 	inst->data_size += data_chunk_size;
 	return data_chunk_size;
 }
-
 
 bool curl_http::exec(const char* url, const char* content_type)
 {

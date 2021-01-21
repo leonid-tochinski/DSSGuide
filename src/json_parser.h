@@ -4,12 +4,10 @@
 #ifndef JSON_PARSER_H_
 #define JSON_PARSER_H_
 
-
-#include <limits.h>
 #include <string>
-#include <iostream>
 #include <vector>
-#include <jansson.h>
+
+struct json_t;
 
 class json_parser {
    public:
@@ -34,7 +32,6 @@ class json_parser {
       static int parse_keys_from_path(const char* path, std::vector<std::string>& obj_keys);
       bool get_object(std::vector<std::string>& obj_keys, json_parser& obj) const;
       static bool is_path(const char * key_path);
-
 };
 
 #endif /* JSON_PARSER_H_ */
