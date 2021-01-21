@@ -11,12 +11,14 @@
 #define NUM_ROWS 4
 #define NUM_COLUMNS 5
 
+// defines displayed item
 struct item_type
 {
     std::string name;
+    std::string type;
     int texture_index;
 };
-
+// defines displayed collection of item
 struct collection_type
 {
     std::string name;

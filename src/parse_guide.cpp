@@ -15,6 +15,7 @@ using namespace std;
 
 bool get_guide_data(guide_data_type& guide_data)
 {
+	cout << "Gettiong guide data..." << endl;
 	cout << 'o'; // debug progress
 	json_parser root;
 	curl_http curl(HOME_JSON_CURL_BUF_SIZE);
@@ -73,7 +74,7 @@ bool get_guide_data(guide_data_type& guide_data)
 			cout << "Empty collection '" << guide_collection.title << "', skipping" << endl;
 		}
 	}
-	cout << endl;
+	cout << endl << "Done" << endl;
 	return true;
 }
 

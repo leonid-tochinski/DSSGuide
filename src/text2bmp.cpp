@@ -1,5 +1,8 @@
 // Text to bitmap converter
 // By L.Tochinski 2021
+
+// TODO make font and bitmap configurable
+
 #include <iostream>
 #include <memory>
 #include <string.h>
@@ -7,10 +10,9 @@
 #include FT_FREETYPE_H
 #include "text2bmp.h"
 
-
 using namespace std;
 
-#define FONT_FILE_NAME "calibri.ttf"
+#define FONT_FILE_NAME "NewWaltDisneyFontRegular-BPen.ttf"
 
 class text2bmp
 {
@@ -107,19 +109,20 @@ void text2bmp::draw_bitmap(FT_Bitmap* bitmap, FT_Int  x, FT_Int  y)
     }
 }
 
-
-
 const char* convert_text2bmp(const char* text, int& width, int& height, int& size)
 {
     static unique_ptr<text2bmp> text_bmp;
+    // signleton lazy initialization
     if (!text_bmp)
     {
         try
         {
             text_bmp.reset(new text2bmp(TEXT_BMP_WIDTH, TEXT_BMP_HEIGHT));
         }
-        catch (int)
+        catch (int error)
         {
+            // TODO : it will try to attempt to create it each time
+            cerr << "text2bmp initialization failed ( " << error << ")" << endl;
             return 0;
         }
     }
@@ -159,5 +162,4 @@ int main()
 
     return 0;
 }
-
 #endif // TEXT2BMP_UNIT_TEST
