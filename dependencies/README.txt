@@ -30,4 +30,9 @@ New Walt Disney Font
 https://www.fontspace.com/new-waltograph-font-f22088
 
 
-All dependencies are precompiled and installed to dependencies directory
+All Windows dependencies are precompiled and installed to dependencies directory
+
+For Ubuntu build, install the following packages:
+
+sudo apt-get install libcurl4-openssl-dev libdevil-dev libjansson-dev libfreetype-dev libglfw3-dev
+

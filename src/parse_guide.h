@@ -23,5 +23,5 @@ typedef std::vector<guide_collection_type> guide_data_type;
 
 bool get_guide_data(guide_data_type& guide_data);
 
-#endif PARSE_GUIDE_H_
+#endif // PARSE_GUIDE_H_
 

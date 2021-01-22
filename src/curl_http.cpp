@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <assert.h>
+#include <string.h>
 #include "curl_http.h"
 
 using namespace std;

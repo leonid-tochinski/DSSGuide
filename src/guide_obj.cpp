@@ -7,6 +7,7 @@
 #include <string>
 #include <deque>
 #include <algorithm>
+#include <string.h>
 #include "guide_obj.h"
 #include "text2bmp.h"
 
@@ -32,9 +33,9 @@ using namespace std;
 
 guide_obj* guide_obj::inst = 0;
 
-guide_obj::guide_obj() : window(0),
-                         selected_row(0),
-                         selected_col(0)
+guide_obj::guide_obj() : selected_row(0),
+                         selected_col(0),
+                         window(0)
 {
     inst = this;
     memset(textures, 0, sizeof(textures));

@@ -53,7 +53,7 @@ bool disney_guide::init()
         auto& guide_collection = guide_data[row];
         collection_type collection;
         collection.name = guide_collection.title;
-        int num_columns = min(NUM_COLUMNS, guide_collection.items.size());
+        int num_columns = min(NUM_COLUMNS, (int)guide_collection.items.size());
         collection.title_texture_index = row;
         load_text_texture(collection.title_texture_index, collection.name.c_str());
         for (int col = 0; col < num_columns; ++col)
@@ -145,7 +145,7 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
                 const auto& guide_collection = guide_data[first_collection_idx];
                 collection.name = guide_collection.title;
                 // we can have small collections
-                int num_columns = min(NUM_COLUMNS, guide_collection.items.size());
+                int num_columns = min(NUM_COLUMNS, (int)guide_collection.items.size());
                 for (int col = 0; col < num_columns; ++col)
                 {
                     const guide_item_type& guide_item = guide_collection.items[col];
@@ -181,7 +181,7 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
                 const auto& guide_collection = guide_data[first_collection_idx + NUM_ROWS];
                 collection.name = guide_collection.title;
                 // we can have small collections
-                int num_columns = min(NUM_COLUMNS, guide_collection.items.size());
+                int num_columns = min(NUM_COLUMNS, (int)guide_collection.items.size());
                 for (int col = 0; col < num_columns; ++col)
                 {
                     const guide_item_type& guide_item = guide_collection.items[col];
