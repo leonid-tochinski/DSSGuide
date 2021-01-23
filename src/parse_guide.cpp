@@ -60,9 +60,34 @@ bool get_guide_data(guide_data_type& guide_data)
 		guide_item_type guide_item;
 		for (auto item : items)
 		{
-			item.get("type", guide_item.type);
+			string type;
+			item.get("type",type );			
+			if (type == "DmcSeries")
+			{
+				guide_item.type = DmcSeries;
+			}
+			else if (type == "DmcVideo")
+			{
+				guide_item.type = DmcVideo;
+			}
+			else if (type == "StandardCollection")
+			{
+				guide_item.type = StandardCollection;
+			}
+			else
+			{
+				guide_item.type = OtherType;
+			}
 			item.get("text/title/full/*/default/content", guide_item.title);
-			item.get("image/tile/1.78/*/default/url", guide_item.img_url);
+			string img_url;
+			item.get("image/tile/1.78/*/default/url", img_url);
+			// get image ID only
+			size_t pos = img_url.rfind("/scale");
+			img_url.erase(pos);
+			pos = img_url.find("/disney/");
+			img_url.erase(0, pos + 8);
+			img_url.copy(guide_item.img_id, 64);
+			guide_item.img_id[64] = 0;
 			guide_collection.items.push_back(guide_item);
 		}
 		if (!guide_collection.items.empty())

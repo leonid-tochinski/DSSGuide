@@ -6,7 +6,7 @@
 
 #include <deque>
 #include <string>
-
+#include "parse_guide.h"
 
 #define NUM_ROWS 4
 #define NUM_COLUMNS 5
@@ -15,7 +15,7 @@
 struct item_type
 {
     std::string name;
-    std::string type;
+    media_item_type type;
     int texture_index;
 };
 // defines displayed collection of item

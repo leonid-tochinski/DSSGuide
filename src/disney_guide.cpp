@@ -18,6 +18,8 @@ using namespace std;
 #define BUF_SIZE  150000
 
 #define STOCK_IMAGE "Disney.jpg"  // 256x144
+#define BASE_IMAGE_URL "https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/"
+#define IMAGE_URL_PARAMS "/scale?format=jpeg&quality=90&scalingAlgorithm=lanczos3&width=256"
 
 class disney_guide : public guide_obj
 {
@@ -77,9 +79,9 @@ bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture
     item.name = guide_item.title;
     item.type = guide_item.type;
     item.texture_index = texture_index;
-    string img_url = guide_item.img_url;
-    size_t pos = img_url.find("width=500");
-    img_url.replace(pos, string::npos, "width=256");
+    string img_url = BASE_IMAGE_URL; 
+    img_url += guide_item.img_id;
+    img_url += IMAGE_URL_PARAMS;
     curl_http curl(JPEG_BUF_SIZE);
     unique_ptr<char[]> bmp(new char[BUF_SIZE]);
     cout << '.'; // show progress
@@ -200,13 +202,13 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
         {
             selected_row = new_selected_row;
         }
-        const string& selection_type = collections[selected_row].items[selected_col].type;
+        media_item_type selection_type = collections[selected_row].items[selected_col].type;
         string name;
-        if (selection_type == "DmcSeries")
+        if (selection_type == DmcSeries)
         {
             name = "Series: ";
         }
-        if (selection_type == "StandardCollection")
+        else if (selection_type == StandardCollection)
         {
             name = "Collection: ";
         }

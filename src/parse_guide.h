@@ -6,11 +6,13 @@
 #include <string>
 #include <vector>
 
+
+enum media_item_type { DmcSeries, DmcVideo, StandardCollection, OtherType };
 struct guide_item_type
 {
 	std::string title;
-	std::string type;
-	std::string img_url;
+	media_item_type type; // can use 1 byte if critical
+	char img_id[65];      // 64 bytes hex can be stored in unsigned long[16]. can be done if critical
 };
 
 struct guide_collection_type
