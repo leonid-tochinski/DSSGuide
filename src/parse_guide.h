@@ -12,7 +12,7 @@ struct guide_item_type
 {
 	std::string title;
 	media_item_type type; // can use 1 byte if critical
-	char img_id[65];      // 64 bytes hex can be stored in unsigned long[16]. can be done if critical
+	unsigned char img_id[32];
 };
 
 struct guide_collection_type

@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <stdio.h>
 #include "curl_http.h"
 #include "json_parser.h"
 #include "parse_guide.h"
@@ -12,6 +13,7 @@ using namespace std;
 #define BASE_URL "https://cd-static.bamgrid.com/dp-117731241344"
 #define HOME_JSON_CURL_BUF_SIZE 1200000
 #define DYNAMIC_JSON_CURL_BUF_SIZE 500000
+#define IMAGE_ID_STR_LEN 64
 
 bool get_guide_data(guide_data_type& guide_data)
 {
@@ -86,8 +88,19 @@ bool get_guide_data(guide_data_type& guide_data)
 			img_url.erase(pos);
 			pos = img_url.find("/disney/");
 			img_url.erase(0, pos + 8);
-			img_url.copy(guide_item.img_id, 64);
-			guide_item.img_id[64] = 0;
+			if (IMAGE_ID_STR_LEN == img_url.size())
+			{
+				for (int i = 0; i < IMAGE_ID_STR_LEN; i += 2)
+				{
+					unsigned short octet = 0;
+					sscanf_s(img_url.c_str() + i, "%2hX", &octet);
+					guide_item.img_id[i/2] = (unsigned char)octet;
+				}
+			}
+			else
+			{
+				cerr << "Unexpected Image ID: " << img_url << endl;
+			}
 			guide_collection.items.push_back(guide_item);
 		}
 		if (!guide_collection.items.empty())

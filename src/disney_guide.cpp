@@ -7,6 +7,7 @@
 #include <fstream>
 #include <deque>
 #include <algorithm>
+#include <stdio.h>
 #include "parse_guide.h"
 #include "curl_http.h"
 #include "decompress_jpeg.h"
@@ -30,6 +31,7 @@ public:
 private:
     virtual void process_new_selection(int new_selected_row, int new_selected_col);
     bool initilize_item(const guide_item_type& guide_item, int texture_index, item_type& item);
+    void get_item_name(const item_type item, string& name);
     guide_data_type guide_data;
     int first_collection_idx;
     deque<int> fist_item_idx;
@@ -68,7 +70,9 @@ bool disney_guide::init()
         collections.push_back(collection);
         fist_item_idx.push_back(0);
     }
-    load_text_texture(NUM_ROWS, collections[0].items[0].name.c_str());
+    string name;
+    get_item_name(collections[selected_row].items[selected_col], name);
+    load_text_texture(NUM_ROWS, name.c_str());// collections[0].items[0].name.c_str());
 
     cout << endl << "Done" << endl;
     return true;
@@ -80,7 +84,12 @@ bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture
     item.type = guide_item.type;
     item.texture_index = texture_index;
     string img_url = BASE_IMAGE_URL; 
-    img_url += guide_item.img_id;
+    char img_id[65];
+    for (int i = 0; i < 32; ++i)
+    { 
+        sprintf_s(img_id+i*2, sizeof(img_id)-i*2, "%02hX", (unsigned short)guide_item.img_id[i]);
+    }
+    img_url += img_id;
     img_url += IMAGE_URL_PARAMS;
     curl_http curl(JPEG_BUF_SIZE);
     unique_ptr<char[]> bmp(new char[BUF_SIZE]);
@@ -121,6 +130,19 @@ bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture
     }
     load_texture(item.texture_index, (const unsigned char*)bmp.get());
     return true;
+}
+
+void disney_guide::get_item_name(const item_type item, string& name)
+{
+    if (item.type == DmcSeries)
+    {
+        name = "Series: ";
+    }
+    else if (item.type == StandardCollection)
+    {
+        name = "Collection: ";
+    }
+    name += item.name;
 }
 
 void disney_guide::process_new_selection(int new_selected_row, int new_selected_col)
@@ -202,65 +224,53 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
         {
             selected_row = new_selected_row;
         }
-        media_item_type selection_type = collections[selected_row].items[selected_col].type;
-        string name;
-        if (selection_type == DmcSeries)
-        {
-            name = "Series: ";
-        }
-        else if (selection_type == StandardCollection)
-        {
-            name = "Collection: ";
-        }
-        name += collections[selected_row].items[selected_col].name;
-        load_text_texture(NUM_ROWS, name.c_str());
-        return;
     }
 
-    if (new_selected_col == selected_col)
+    if (new_selected_col != selected_col)
     {
-        return;
+        if (new_selected_col < 0)
+        {
+            if (fist_item_idx[selected_row] > 0)
+            {
+                int& first_item = fist_item_idx[selected_row];
+                auto& items = collections[selected_row].items;
+                // copy last item
+                item_type item = items[NUM_COLUMNS - 1];
+                // remove last item
+                items.pop_back();
+                --first_item;
+                // get guide data for last item
+                const auto& guide_collection = guide_data[first_collection_idx + selected_row];
+                const auto& guide_item = guide_collection.items[first_item];
+                initilize_item(guide_item, item.texture_index, item);
+                items.push_front(item);
+            }
+        }
+        else if (new_selected_col == NUM_COLUMNS)
+        {
+            const auto& guide_items = guide_data[first_collection_idx + selected_row].items;
+            if (fist_item_idx[selected_row] + NUM_COLUMNS < (int)guide_items.size())
+            {
+                int& first_item = fist_item_idx[selected_row];
+                auto& items = collections[selected_row].items;
+                // copy first item
+                item_type item = items[0];
+                items.pop_front(); // remove first item
+                ++first_item;
+                const auto& guide_item = guide_items[first_item + NUM_COLUMNS - 1];
+                initilize_item(guide_item, item.texture_index, item);
+                items.push_back(item);
+            }
+        }
+        else
+        {
+            selected_col = new_selected_col;
+        }
     }
 
-    if (new_selected_col < 0)
-    {
-        if (fist_item_idx[selected_row] > 0)
-        {
-            int& first_item = fist_item_idx[selected_row];
-            auto& items = collections[selected_row].items;
-            // copy last item
-            item_type item = items[NUM_COLUMNS - 1];
-            // remove last item
-            items.pop_back();
-            --first_item;
-            // get guide data for last item
-            const auto& guide_collection = guide_data[first_collection_idx + selected_row];
-            const auto& guide_item = guide_collection.items[first_item];
-            initilize_item(guide_item, item.texture_index, item);
-            items.push_front(item);
-        }
-    }
-    else if (new_selected_col == NUM_COLUMNS)
-    {
-        const auto& guide_items = guide_data[first_collection_idx + selected_row].items;
-        if (fist_item_idx[selected_row] + NUM_COLUMNS < (int)guide_items.size())
-        {
-            int& first_item = fist_item_idx[selected_row];
-            auto& items = collections[selected_row].items;
-            // copy first item
-            item_type item = items[0];
-            items.pop_front(); // remove first item
-            ++first_item;
-            const auto& guide_item = guide_items[first_item + NUM_COLUMNS - 1];
-            initilize_item(guide_item, item.texture_index, item);
-            items.push_back(item);
-        }
-    }
-    else
-    {
-        selected_col = new_selected_col;
-    }
-    load_text_texture(NUM_ROWS, collections[selected_row].items[selected_col].name.c_str());
+    string name;
+    get_item_name(collections[selected_row].items[selected_col], name);
+    load_text_texture(NUM_ROWS, name.c_str());
 }
 //--------------------------------
 
