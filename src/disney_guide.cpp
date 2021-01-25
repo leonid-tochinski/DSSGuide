@@ -225,6 +225,15 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
             selected_row = new_selected_row;
         }
     }
+    // adjust selected column when number of items less than number of columns
+    int num_columns = collections[selected_row].items.size();
+    if (num_columns < NUM_COLUMNS) 
+    {
+        if (selected_col >= num_columns || new_selected_col == num_columns)
+        {
+            new_selected_col = selected_col = num_columns - 1;
+        }
+    }
 
     if (new_selected_col != selected_col)
     {

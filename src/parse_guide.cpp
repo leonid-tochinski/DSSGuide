@@ -81,8 +81,9 @@ bool get_guide_data(guide_data_type& guide_data)
 				guide_item.type = OtherType;
 			}
 			item.get("text/title/full/*/default/content", guide_item.title);
-			string img_url;
-			item.get("image/tile/1.78/*/default/url", img_url);
+			string img_url_orig;
+			item.get("image/tile/1.78/*/default/url", img_url_orig);
+			string img_url = img_url_orig;
 			// get image ID only
 			size_t pos = img_url.rfind("/scale");
 			img_url.erase(pos);
@@ -99,7 +100,8 @@ bool get_guide_data(guide_data_type& guide_data)
 			}
 			else
 			{
-				cerr << "Unexpected Image ID: " << img_url << endl;
+				memset(guide_item.img_id, 0, sizeof(guide_item.img_id));
+				cerr << guide_item.title << " : Unexpected Image ID: " << img_url << "ID length " << img_url.size() << ", expected 64"<< endl;
 			}
 			guide_collection.items.push_back(guide_item);
 		}
