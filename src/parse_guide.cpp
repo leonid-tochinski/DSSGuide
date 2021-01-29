@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stdio.h>
+#include <string.h>
 #include "curl_http.h"
 #include "json_parser.h"
 #include "parse_guide.h"
@@ -87,7 +88,7 @@ bool get_guide_data(guide_data_type& guide_data)
 				for (int i = 0; i < IMAGE_ID_LEN*2; i += 2)
 				{
 					unsigned short octet = 0;
-					sscanf_s(masterId.c_str() + i, "%2hX", &octet);
+					sscanf(masterId.c_str() + i, "%2hX", &octet);
 					guide_item.img_id[i/2] = (unsigned char)octet;
 				}
 			}

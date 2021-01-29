@@ -40,6 +40,7 @@ protected:
     void load_texture(int texture_index, const unsigned char* bmp);
     void load_text_texture(int texture_index, const char* text);
     virtual void process_new_selection(int new_selected_row, int new_selected_col);
+    virtual void select(){}
 protected:
     unsigned int textures[NUM_ROWS * NUM_COLUMNS];
     unsigned int text_textures[NUM_ROWS + 1];

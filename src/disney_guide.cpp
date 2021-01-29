@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <chrono>
 #include <stdio.h>
+#include <string.h>
 #include "parse_guide.h"
 #include "curl_http.h"
 #include "decompress_jpeg.h"
@@ -31,6 +32,7 @@ public:
 
 private:
     virtual void process_new_selection(int new_selected_row, int new_selected_col);
+    virtual void select();
     bool initilize_item(const guide_item_type& guide_item, int texture_index, item_type& item);
     void get_item_name(const item_type item, string& name);
     guide_data_type guide_data;
@@ -92,7 +94,7 @@ bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture
     char img_id[IMAGE_ID_LEN * 2 + 1];
     for (int i = 0; i < IMAGE_ID_LEN; ++i)
     {
-        sprintf_s(img_id + i * 2, sizeof(img_id) - i * 2, "%02hX", (unsigned short)guide_item.img_id[i]);
+        snprintf(img_id + i * 2, sizeof(img_id) - i * 2, "%02hX", (unsigned short)guide_item.img_id[i]);
     }
     if (*(unsigned long long*)guide_item.img_id == 0LL) // we can't have sixteen zeros in the beginning of the string for valid image id
     {
@@ -296,6 +298,12 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
     get_item_name(collections[selected_row].items[selected_col], name);
     load_text_texture(NUM_ROWS, name.c_str());
 }
+
+void disney_guide::select()
+{
+   cout << "Selected: " << collections[selected_row].items[selected_col].name << endl;
+}
+
 //--------------------------------
 
 int main()

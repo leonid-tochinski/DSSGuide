@@ -141,7 +141,7 @@ void guide_obj::key_callback(int key, int /*scancode*/, int action, int /*mods*/
 
     switch (key)
     {
-        case GLFW_KEY_ENTER: cout << "Enter"; break;
+        case GLFW_KEY_ENTER: select(); break;
         case GLFW_KEY_BACKSPACE:
         case GLFW_KEY_LEFT:  --new_selected_col; break;
         case GLFW_KEY_RIGHT: ++new_selected_col; break;
