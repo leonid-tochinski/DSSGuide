@@ -7,6 +7,7 @@
 #include <fstream>
 #include <deque>
 #include <algorithm>
+#include <chrono>
 #include <stdio.h>
 #include "parse_guide.h"
 #include "curl_http.h"
@@ -45,6 +46,7 @@ disney_guide::disney_guide() : first_collection_idx(0)
 
 bool disney_guide::init()
 {
+    auto start = std::chrono::steady_clock::now();
     guide_obj::init();
 
     curl_http curl(JPEG_BUF_SIZE);
@@ -72,60 +74,69 @@ bool disney_guide::init()
     }
     string name;
     get_item_name(collections[selected_row].items[selected_col], name);
-    load_text_texture(NUM_ROWS, name.c_str());// collections[0].items[0].name.c_str());
+    load_text_texture(NUM_ROWS, name.c_str());
 
-    cout << endl << "Done" << endl;
+    std::chrono::duration<float> diff = std::chrono::steady_clock::now() - start;
+    cout << endl << "Done ( " << diff.count() << " sec )" << endl;
     return true;
 }
 
 bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture_index, item_type& item)
 {
+    cout << '.'; // show progress
     item.name = guide_item.title;
     item.type = guide_item.type;
     item.texture_index = texture_index;
-    string img_url = BASE_IMAGE_URL; 
-    char img_id[65];
-    for (int i = 0; i < 32; ++i)
-    { 
-        sprintf_s(img_id+i*2, sizeof(img_id)-i*2, "%02hX", (unsigned short)guide_item.img_id[i]);
-    }
-    img_url += img_id;
-    img_url += IMAGE_URL_PARAMS;
-    curl_http curl(JPEG_BUF_SIZE);
     unique_ptr<char[]> bmp(new char[BUF_SIZE]);
-    cout << '.'; // show progress
     bool error = false;
-    if (!curl.exec(img_url.c_str(), "image/jpg"))
+    char img_id[IMAGE_ID_LEN * 2 + 1];
+    for (int i = 0; i < IMAGE_ID_LEN; ++i)
     {
-        cerr << "curl failed" << endl;
+        sprintf_s(img_id + i * 2, sizeof(img_id) - i * 2, "%02hX", (unsigned short)guide_item.img_id[i]);
+    }
+    if (*(unsigned long long*)guide_item.img_id == 0LL) // we can't have sixteen zeros in the beginning of the string for valid image id
+    {
         error = true;
     }
     else
     {
-        const unsigned char* jpeg_data = (unsigned char*)curl.get_data();
-        // check jpeg signature FF D8 FF
-        if (curl.get_data_size() > 3 && jpeg_data[0] == 0xFF && jpeg_data[1] == 0xD8 && jpeg_data[2] == 0xFF)
+        string img_url = BASE_IMAGE_URL;
+        img_url += img_id;
+        img_url += IMAGE_URL_PARAMS;
+        curl_http curl(JPEG_BUF_SIZE);
+        if (!curl.exec(img_url.c_str(), "image/jpg"))
         {
-            int out_size = BUF_SIZE, width = 0, height = 0;
-            error = !decompress_jpeg(curl.get_data(), curl.get_data_size(), bmp.get(), out_size, width, height);
+            cerr << "curl failed" << endl;
+            error = true;
         }
         else
         {
-            error = true;
-            cerr << "bad jpeg signature" << endl;
+            const unsigned char* jpeg_data = (unsigned char*)curl.get_data();
+            // check jpeg signature FF D8 FF
+            if (curl.get_data_size() > 3 && jpeg_data[0] == 0xFF && jpeg_data[1] == 0xD8 && jpeg_data[2] == 0xFF)
+            {
+                int out_size = BUF_SIZE, width = 0, height = 0;
+                error = !decompress_jpeg(curl.get_data(), curl.get_data_size(), bmp.get(), out_size, width, height);
+            }
+            else
+            {
+                error = true;
+                cerr << "bad jpeg signature" << endl;
+            }
         }
     }
     if (error == true)
     {
-        cerr << "can't get image from " << img_url << ". Using stock image." << endl;
+        cerr << "bad image ID: " << img_id << ". Using stock image." << endl;
         auto stock_jpeg = std::fstream(STOCK_IMAGE, std::ios::in | std::ios::binary);
         unique_ptr<char[]> in(new char[BUF_SIZE]);
         stock_jpeg.read(in.get(), BUF_SIZE);
         int img_size = (int)stock_jpeg.gcount();
         int out_size = BUF_SIZE, width = 0, height = 0;
-        if (decompress_jpeg(in.get(), img_size, bmp.get(), out_size, width, height))
+        if (!decompress_jpeg(in.get(), img_size, bmp.get(), out_size, width, height))
         {
-            error = false;
+            cerr << "Cannot get stock image " << STOCK_IMAGE << endl;
+            memset(bmp.get(), BUF_SIZE, sizeof(BUF_SIZE));
         }
     }
     load_texture(item.texture_index, (const unsigned char*)bmp.get());
@@ -153,6 +164,7 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
         {
             if (first_collection_idx > 0)
             {
+                auto start = std::chrono::steady_clock::now();
                 // recycle collection
                 auto collection = *collections.rbegin();
                 // get first texture index was used by row to be deleted for recycle
@@ -182,13 +194,15 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
                 load_text_texture(collection.title_texture_index, collection.name.c_str());
                 collections.push_front(collection);
                 fist_item_idx.push_front(0);
-                cout << endl;
+                std::chrono::duration<float> diff = std::chrono::steady_clock::now() - start;
+                cout << endl << diff.count() << " sec" << endl;
             }
         }
         else if (new_selected_row == NUM_ROWS)
         {
             if ((unsigned int)(first_collection_idx + NUM_ROWS) < guide_data.size() - 1)
             {
+                auto start = std::chrono::steady_clock::now();
                 // recycle collection
                 auto collection = *collections.begin();
                 // get first texture index was used by row to be deleted for recycle
@@ -217,7 +231,8 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
                 load_text_texture(collection.title_texture_index, collection.name.c_str());
                 collections.push_back(collection);
                 fist_item_idx.push_back(0);
-                cout << endl;
+                std::chrono::duration<float> diff = std::chrono::steady_clock::now() - start;
+                cout << endl << diff.count() << " sec" << endl;
             }
         }
         else

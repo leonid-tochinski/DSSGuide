@@ -14,7 +14,10 @@ DisneyGuide: $(OBJ)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
 	
 install:
-	cp DisneyGuide ../dependencies/bin
+    mkdir ../release 
+	cp DisneyGuide ../release 
+	cp ../dependencies/bin/*.ttf  ../release 
+	cp ../dependencies/bin/*.jpg  ../release 
 
 .PHONY: clean
 

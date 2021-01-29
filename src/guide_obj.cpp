@@ -110,10 +110,18 @@ bool guide_obj::init()
     glOrtho(0, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, 0, 0, 1); // essentially set coordinate system
     glMatrixMode(GL_MODELVIEW); // (default matrix mode) modelview matrix defines how your objects are transformed (meaning translation, rotation and scaling) in your world
     glLoadIdentity(); // same as above comment
+
+    // clear screen
+    glClear(GL_COLOR_BUFFER_BIT);
+    // set message while artwork is loading 
+    load_text_texture(NUM_ROWS, "Disney+ Loading...");
+    render_text_txture(NUM_ROWS, SELECTED_ITEM_TITLE_LEFT_MARGIN + 100.f, SCREEN_HEIGHT-SELECTED_ITEM_TITLE_TOP_MARGIN);
+    glfwSwapBuffers(window);
+
     return true;
 }
 
-void guide_obj::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void guide_obj::key_callback(GLFWwindow* /*window*/, int key, int scancode, int action, int mods)
 {
     if (inst != 0)
     {
@@ -121,7 +129,7 @@ void guide_obj::key_callback(GLFWwindow* window, int key, int scancode, int acti
     }
 }
 
-void guide_obj::key_callback(int key, int scancode, int action, int mods)
+void guide_obj::key_callback(int key, int /*scancode*/, int action, int /*mods*/)
 {
     if (action != GLFW_PRESS /*&& action != GLFW_REPEAT*/)
     {

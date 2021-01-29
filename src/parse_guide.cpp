@@ -13,7 +13,6 @@ using namespace std;
 #define BASE_URL "https://cd-static.bamgrid.com/dp-117731241344"
 #define HOME_JSON_CURL_BUF_SIZE 1200000
 #define DYNAMIC_JSON_CURL_BUF_SIZE 500000
-#define IMAGE_ID_STR_LEN 64
 
 bool get_guide_data(guide_data_type& guide_data)
 {
@@ -81,28 +80,26 @@ bool get_guide_data(guide_data_type& guide_data)
 				guide_item.type = OtherType;
 			}
 			item.get("text/title/full/*/default/content", guide_item.title);
-			string img_url_orig;
-			item.get("image/tile/1.78/*/default/url", img_url_orig);
-			string img_url = img_url_orig;
-			// get image ID only
-			size_t pos = img_url.rfind("/scale");
-			img_url.erase(pos);
-			pos = img_url.find("/disney/");
-			img_url.erase(0, pos + 8);
-			if (IMAGE_ID_STR_LEN == img_url.size())
+			string masterId;
+			item.get("image/tile/1.78/*/default/masterId", masterId);
+			if (IMAGE_ID_LEN*2 == masterId.size())
 			{
-				for (int i = 0; i < IMAGE_ID_STR_LEN; i += 2)
+				for (int i = 0; i < IMAGE_ID_LEN*2; i += 2)
 				{
 					unsigned short octet = 0;
-					sscanf_s(img_url.c_str() + i, "%2hX", &octet);
+					sscanf_s(masterId.c_str() + i, "%2hX", &octet);
 					guide_item.img_id[i/2] = (unsigned char)octet;
 				}
 			}
 			else
 			{
 				memset(guide_item.img_id, 0, sizeof(guide_item.img_id));
-				cerr << guide_item.title << " : Unexpected Image ID: " << img_url << "ID length " << img_url.size() << ", expected 64"<< endl;
+				cerr << guide_item.title << " : Unexpected Image ID: " << masterId << "ID length " << masterId.size() << ", expected 64"<< endl;
 			}
+			// some idditional IDs should added here...
+			// 
+			// 
+			// some idditional IDs should added here...
 			guide_collection.items.push_back(guide_item);
 		}
 		if (!guide_collection.items.empty())

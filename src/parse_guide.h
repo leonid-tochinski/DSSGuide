@@ -6,13 +6,14 @@
 #include <string>
 #include <vector>
 
+#define IMAGE_ID_LEN 32
 
 enum media_item_type { DmcSeries, DmcVideo, StandardCollection, OtherType };
 struct guide_item_type
 {
 	std::string title;
 	media_item_type type; // can use 1 byte if critical
-	unsigned char img_id[32];
+	unsigned char img_id[IMAGE_ID_LEN];
 };
 
 struct guide_collection_type
