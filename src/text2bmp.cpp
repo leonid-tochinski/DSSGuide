@@ -14,9 +14,6 @@ using namespace std;
 
 #define FONT_FILE_NAME "NewWaltDisneyFontRegular-BPen.ttf"
 
-// use 25pt at 100dpi 
-#define FONT_CHAR_WIDTH 25
-
 class text2bmp
 {
 public:
@@ -55,7 +52,8 @@ text2bmp::text2bmp(int width, int height) :
         throw 2;
     }
 
-    if (FT_Set_Char_Size(face, FONT_CHAR_WIDTH * 64, 0, 100, 0))
+if (FT_Set_Pixel_Sizes(face, 0, TEXT_BMP_HEIGHT))
+
     {
         cerr << "FreeType error: set character size " << endl;
         throw 2;
@@ -74,7 +72,7 @@ bool text2bmp::convert(const char* text)
 {
     memset(data.get(), 0, width_ * height_);
     FT_GlyphSlot  slot = face->glyph;
-    int pen_x = 10, pen_y = FONT_CHAR_WIDTH + 2;
+    int pen_x = 10, pen_y = TEXT_BMP_HEIGHT-8;
     int num_chars = strlen(text);
     for (int n = 0; n < num_chars; n++)
     {

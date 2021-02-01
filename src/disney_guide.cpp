@@ -26,6 +26,8 @@ using namespace std;
 
 #define SELECTED_ITEM_TEXT_TEX_IDX NUM_ROWS // selected title text texture is the last element of text texture array
 
+/// @brief main object
+/// @class disney_guide
 class disney_guide : public guide_obj
 {
 public:
@@ -37,14 +39,16 @@ private:
     virtual void select();
     bool initilize_item(const guide_item_type& guide_item, int texture_index, item_type& item);
     void get_item_name(const item_type item, string& name);
-    guide_data_type guide_data;
-    int first_collection_idx;
-    deque<int> fist_item_idx;
+    guide_data_type guide_data;   ///< guide data, fetched from JSON 
+    int first_collection_idx;     ///< guide_data[first_collection_idx] --> guide_obj::collections[0]
+    deque<int> fist_item_idx;     ///< guide_data[first_collection_idx].item[fist_item_idx[0]] --> guide_obj::collections[0].item[0]
 };
+
 
 disney_guide::disney_guide() : first_collection_idx(0)
 {
-    get_guide_data(guide_data);
+    // fetch guide data from json on web server
+  //  get_guide_data(guide_data);
 }
 
 
@@ -57,6 +61,8 @@ bool disney_guide::init()
 {
     auto start = std::chrono::steady_clock::now();
     guide_obj::init();
+    // fetch guide data from json on web server
+    get_guide_data(guide_data);
 
     cout << "Getting artwork..." << endl;
 

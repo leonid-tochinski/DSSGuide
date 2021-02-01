@@ -113,7 +113,7 @@ bool guide_obj::init()
     // clear screen
     glClear(GL_COLOR_BUFFER_BIT);
     // set message while artwork is loading 
-    load_text_texture(NUM_ROWS, "Disney+ Loading...");
+    load_text_texture(NUM_ROWS, "Loading Disney+ ...");
     render_text_txture(NUM_ROWS, SELECTED_ITEM_TITLE_LEFT_MARGIN + 100.f, SCREEN_HEIGHT/2 -SELECTED_ITEM_TITLE_TOP_MARGIN);
     glfwSwapBuffers(window);
 
