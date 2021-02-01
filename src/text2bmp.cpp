@@ -14,6 +14,9 @@ using namespace std;
 
 #define FONT_FILE_NAME "NewWaltDisneyFontRegular-BPen.ttf"
 
+// use 25pt at 100dpi 
+#define FONT_CHAR_WIDTH 25
+
 class text2bmp
 {
 public:
@@ -52,8 +55,7 @@ text2bmp::text2bmp(int width, int height) :
         throw 2;
     }
 
-    // use 50pt at 100dpi 
-    if (FT_Set_Char_Size(face, 50 * 64, 0, 100, 0))
+    if (FT_Set_Char_Size(face, FONT_CHAR_WIDTH * 64, 0, 100, 0))
     {
         cerr << "FreeType error: set character size " << endl;
         throw 2;
@@ -72,7 +74,7 @@ bool text2bmp::convert(const char* text)
 {
     memset(data.get(), 0, width_ * height_);
     FT_GlyphSlot  slot = face->glyph;
-    int pen_x = 10, pen_y = 50;
+    int pen_x = 10, pen_y = FONT_CHAR_WIDTH + 2;
     int num_chars = strlen(text);
     for (int n = 0; n < num_chars; n++)
     {
@@ -109,6 +111,16 @@ void text2bmp::draw_bitmap(FT_Bitmap* bitmap, FT_Int  x, FT_Int  y)
     }
 }
 
+/// @brief        Convert text to grayscale bitmap
+///
+/// Create instance of text2bmp object when run first time
+/// convert string to grayscale 1 bpp butmap
+/// 
+/// @param text   text string
+/// @param width  [out] bitmap width
+/// @param height [out] bitmap height
+/// @param size   [out] bitmap size
+/// @return 
 const char* convert_text2bmp(const char* text, int& width, int& height, int& size)
 {
     static unique_ptr<text2bmp> text_bmp;
@@ -141,6 +153,8 @@ const char* convert_text2bmp(const char* text, int& width, int& height, int& siz
 //#define TEXT2BMP_UNIT_TEST
 
 #ifdef TEXT2BMP_UNIT_TEST
+
+// check uncompressed image here: https://rawpixels.net/
 
 #include <fstream>
 

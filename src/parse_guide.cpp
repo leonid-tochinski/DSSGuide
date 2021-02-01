@@ -17,7 +17,7 @@ using namespace std;
 
 bool get_guide_data(guide_data_type& guide_data)
 {
-	cout << "Gettiong guide data..." << endl;
+	cout << "Getting guide data..." << endl;
 	cout << 'o'; // debug progress
 	json_parser root;
 	curl_http curl(HOME_JSON_CURL_BUF_SIZE);
@@ -83,6 +83,7 @@ bool get_guide_data(guide_data_type& guide_data)
 			item.get("text/title/full/*/default/content", guide_item.title);
 			string masterId;
 			item.get("image/tile/1.78/*/default/masterId", masterId);
+			// convirt HEX string to binary array
 			if (IMAGE_ID_LEN*2 == masterId.size())
 			{
 				for (int i = 0; i < IMAGE_ID_LEN*2; i += 2)

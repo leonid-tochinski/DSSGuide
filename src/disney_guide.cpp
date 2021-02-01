@@ -18,11 +18,13 @@
 using namespace std;
 
 #define JPEG_BUF_SIZE 30000
-#define BUF_SIZE  150000
+#define BMP_BUF_SIZE  150000
 
 #define STOCK_IMAGE "Disney.jpg"  // 256x144
 #define BASE_IMAGE_URL "https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/"
-#define IMAGE_URL_PARAMS "/scale?format=jpeg&quality=90&scalingAlgorithm=lanczos3&width=256"
+#define IMAGE_URL_PARAMS "/scale?format=jpeg&quality=90&scalingAlgorithm=lanczos3&width="  
+
+#define SELECTED_ITEM_TEXT_TEX_IDX NUM_ROWS // selected title text texture is the last element of text texture array
 
 class disney_guide : public guide_obj
 {
@@ -38,7 +40,6 @@ private:
     guide_data_type guide_data;
     int first_collection_idx;
     deque<int> fist_item_idx;
-
 };
 
 disney_guide::disney_guide() : first_collection_idx(0)
@@ -46,13 +47,16 @@ disney_guide::disney_guide() : first_collection_idx(0)
     get_guide_data(guide_data);
 }
 
+
+/// @brief Initialize collections array from collections guide data
+///
+/// Initialize base class, collections array from guide data, get images, initialize structures
+/// 
+/// @return true if successful 
 bool disney_guide::init()
 {
     auto start = std::chrono::steady_clock::now();
     guide_obj::init();
-
-    curl_http curl(JPEG_BUF_SIZE);
-    unique_ptr<char[]> bmp(new char[BUF_SIZE]);
 
     cout << "Getting artwork..." << endl;
 
@@ -76,21 +80,30 @@ bool disney_guide::init()
     }
     string name;
     get_item_name(collections[selected_row].items[selected_col], name);
-    load_text_texture(NUM_ROWS, name.c_str());
+    load_text_texture(SELECTED_ITEM_TEXT_TEX_IDX, name.c_str());
 
     std::chrono::duration<float> diff = std::chrono::steady_clock::now() - start;
     cout << endl << "Done ( " << diff.count() << " sec )" << endl;
     return true;
 }
 
+/// @brief Initialize screen item from guide item
+/// 
+/// Copy title text, media type, download image, convert to bitmap, initialize texture
+/// 
+/// @param guide_item 
+/// @param texture_index 
+/// @param item 
+/// @return true if successful
 bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture_index, item_type& item)
 {
     cout << '.'; // show progress
     item.name = guide_item.title;
     item.type = guide_item.type;
     item.texture_index = texture_index;
-    unique_ptr<char[]> bmp(new char[BUF_SIZE]);
+    unique_ptr<char[]> bmp(new char[BMP_BUF_SIZE]);
     bool error = false;
+    // stringify image ID
     char img_id[IMAGE_ID_LEN * 2 + 1];
     for (int i = 0; i < IMAGE_ID_LEN; ++i)
     {
@@ -105,6 +118,14 @@ bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture
         string img_url = BASE_IMAGE_URL;
         img_url += img_id;
         img_url += IMAGE_URL_PARAMS;
+        // request image size matching texture size
+        static char img_size_str[5]=""; // up to 9999
+        if (img_size_str[0]==0)
+        { 
+            snprintf(img_size_str, sizeof(img_size_str), "%d", TEX_IMAGE_WIDTH);
+        }
+        img_url += img_size_str;
+
         curl_http curl(JPEG_BUF_SIZE);
         if (!curl.exec(img_url.c_str(), "image/jpg"))
         {
@@ -117,7 +138,7 @@ bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture
             // check jpeg signature FF D8 FF
             if (curl.get_data_size() > 3 && jpeg_data[0] == 0xFF && jpeg_data[1] == 0xD8 && jpeg_data[2] == 0xFF)
             {
-                int out_size = BUF_SIZE, width = 0, height = 0;
+                int out_size = BMP_BUF_SIZE, width = 0, height = 0;
                 error = !decompress_jpeg(curl.get_data(), curl.get_data_size(), bmp.get(), out_size, width, height);
             }
             else
@@ -131,20 +152,23 @@ bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture
     {
         cerr << "bad image ID: " << img_id << ". Using stock image." << endl;
         auto stock_jpeg = std::fstream(STOCK_IMAGE, std::ios::in | std::ios::binary);
-        unique_ptr<char[]> in(new char[BUF_SIZE]);
-        stock_jpeg.read(in.get(), BUF_SIZE);
+        unique_ptr<char[]> in(new char[BMP_BUF_SIZE]);
+        stock_jpeg.read(in.get(), BMP_BUF_SIZE);
         int img_size = (int)stock_jpeg.gcount();
-        int out_size = BUF_SIZE, width = 0, height = 0;
+        int out_size = BMP_BUF_SIZE, width = 0, height = 0;
         if (!decompress_jpeg(in.get(), img_size, bmp.get(), out_size, width, height))
         {
             cerr << "Cannot get stock image " << STOCK_IMAGE << endl;
-            memset(bmp.get(), BUF_SIZE, sizeof(BUF_SIZE));
+            memset(bmp.get(), 0, BMP_BUF_SIZE);
         }
     }
     load_texture(item.texture_index, (const unsigned char*)bmp.get());
     return true;
 }
 
+/// @brief Prepend prefix to item name if needed
+/// @param new_selected_row 
+/// @param new_selected_col 
 void disney_guide::get_item_name(const item_type item, string& name)
 {
     if (item.type == DmcSeries)
@@ -158,6 +182,12 @@ void disney_guide::get_item_name(const item_type item, string& name)
     name += item.name;
 }
 
+/// @brief handle changing selection on the screen
+///
+/// Handle selected item, modify item/collection when needed
+/// 
+/// @param new_selected_row 
+/// @param new_selected_col 
 void disney_guide::process_new_selection(int new_selected_row, int new_selected_col)
 {
     if (new_selected_row != selected_row)
@@ -296,7 +326,7 @@ void disney_guide::process_new_selection(int new_selected_row, int new_selected_
 
     string name;
     get_item_name(collections[selected_row].items[selected_col], name);
-    load_text_texture(NUM_ROWS, name.c_str());
+    load_text_texture(SELECTED_ITEM_TEXT_TEX_IDX, name.c_str());
 }
 
 void disney_guide::select()

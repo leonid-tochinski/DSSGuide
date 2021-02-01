@@ -13,11 +13,8 @@
 
 using namespace std;
 
-#define SCREEN_WIDTH 720
-#define SCREEN_HEIGHT 480
-
-#define TEX_IMAGE_WIDTH 256
-#define TEX_IMAGE_HEIGHT 144
+#define SCREEN_WIDTH 1440
+#define SCREEN_HEIGHT 960
 
 #define TEX_TEXT_TOP_MARGIN 30.f
 #define SELECTED_ITEM_TITLE_LEFT_MARGIN 500.f
@@ -56,6 +53,8 @@ guide_obj::~guide_obj()
     inst = 0;
 }
 
+/// @brief Initialize OpenGL
+/// @return true if successful 
 bool guide_obj::init()
 {
     if (!glfwInit())
@@ -64,7 +63,7 @@ bool guide_obj::init()
     }
 
     // Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, "Disney Guide", NULL, NULL);
+    window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Disney Guide", NULL, NULL);
     if (!window)
     {
         return false;
@@ -72,9 +71,9 @@ bool guide_obj::init()
 
     // Make the window's context current
     glfwMakeContextCurrent(window);
-
+    // set keyboard callback
     glfwSetKeyCallback(window, key_callback);
-    // init tetures
+    // init tile textures
     glGenTextures(NUM_ROWS * NUM_COLUMNS, textures);
     for (int i = 0; i < NUM_ROWS * NUM_COLUMNS; ++i)
     {
@@ -89,7 +88,8 @@ bool guide_obj::init()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_IMAGE_WIDTH, TEX_IMAGE_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
 
-    glGenTextures(NUM_ROWS, text_textures);
+    // init text textures
+    glGenTextures(NUM_ROWS +1, text_textures);
     for (int i = 0; i < NUM_ROWS + 1; ++i)
     {
         glBindTexture(GL_TEXTURE_2D, text_textures[i]);
@@ -100,14 +100,13 @@ bool guide_obj::init()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, TEXT_BMP_WIDTH, TEXT_BMP_HEIGHT, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, 0);
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     glEnable(GL_TEXTURE_2D);
     // initialize coordinates system
-    glViewport(0, 0, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2); // specifies the part of the window to which OpenGL will draw (in pixels), convert from normalised to pixels
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT); // specifies the part of the window to which OpenGL will draw (in pixels), convert from normalised to pixels
     glMatrixMode(GL_PROJECTION); // projection matrix defines the properties of the camera that views the objects in the world coordinate frame. Here you typically set the zoom factor, aspect ratio and the near and far clipping planes
     glLoadIdentity(); // replace the current matrix with the identity matrix and starts us a fresh because matrix transforms such as glOrpho and glRotate cumulate, basically puts us at (0, 0, 0)
-    glOrtho(0, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, 0, 0, 1); // essentially set coordinate system
+    glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 1); // essentially set coordinate system
     glMatrixMode(GL_MODELVIEW); // (default matrix mode) modelview matrix defines how your objects are transformed (meaning translation, rotation and scaling) in your world
     glLoadIdentity(); // same as above comment
 
@@ -115,7 +114,7 @@ bool guide_obj::init()
     glClear(GL_COLOR_BUFFER_BIT);
     // set message while artwork is loading 
     load_text_texture(NUM_ROWS, "Disney+ Loading...");
-    render_text_txture(NUM_ROWS, SELECTED_ITEM_TITLE_LEFT_MARGIN + 100.f, SCREEN_HEIGHT-SELECTED_ITEM_TITLE_TOP_MARGIN);
+    render_text_txture(NUM_ROWS, SELECTED_ITEM_TITLE_LEFT_MARGIN + 100.f, SCREEN_HEIGHT/2 -SELECTED_ITEM_TITLE_TOP_MARGIN);
     glfwSwapBuffers(window);
 
     return true;
@@ -131,23 +130,22 @@ void guide_obj::key_callback(GLFWwindow* /*window*/, int key, int scancode, int 
 
 void guide_obj::key_callback(int key, int /*scancode*/, int action, int /*mods*/)
 {
-    if (action != GLFW_PRESS /*&& action != GLFW_REPEAT*/)
+    if (action != GLFW_PRESS)
     {
         return;
     }
 
-    int new_selected_row = selected_row;
-    int new_selected_col = selected_col;
+    int new_selected_row = selected_row, new_selected_col = selected_col;
 
     switch (key)
     {
-        case GLFW_KEY_ENTER: select(); break;
+        case GLFW_KEY_ENTER:     select(); break;
         case GLFW_KEY_BACKSPACE:
-        case GLFW_KEY_LEFT:  --new_selected_col; break;
-        case GLFW_KEY_RIGHT: ++new_selected_col; break;
-        case GLFW_KEY_DOWN:  ++new_selected_row; break;
-        case GLFW_KEY_UP:    --new_selected_row; break;
-        case GLFW_KEY_ESCAPE:   glfwSetWindowShouldClose(window, GLFW_TRUE); return;
+        case GLFW_KEY_LEFT:      --new_selected_col; break;
+        case GLFW_KEY_RIGHT:     ++new_selected_col; break;
+        case GLFW_KEY_DOWN:      ++new_selected_row; break;
+        case GLFW_KEY_UP:        --new_selected_row; break;
+        case GLFW_KEY_ESCAPE:    glfwSetWindowShouldClose(window, GLFW_TRUE); return;
         default:;
     }
     process_new_selection(new_selected_row, new_selected_col);
@@ -174,10 +172,10 @@ void guide_obj::render_text_txture(int index, float x, float y) const
 {
     static const GLfloat texture_vertices[] =
     {
-        TEXT_BMP_WIDTH/2, 0,  // top right corner
-        0, 0,    // top left corner
-        0, TEXT_BMP_HEIGHT/2,      // bottom left corner
-        TEXT_BMP_WIDTH/2, TEXT_BMP_HEIGHT/2,    // bottom right corner
+        TEXT_BMP_WIDTH-1, 0,                  // top right corner
+        0,                0,                  // top left corner
+        0,                TEXT_BMP_HEIGHT-1,  // bottom left corner
+        TEXT_BMP_WIDTH-1, TEXT_BMP_HEIGHT-1,  // bottom right corner
     };
     static const GLfloat texVertices[] = { 1,0, 0,0, 0,1, 1, 1 };
 
@@ -200,10 +198,10 @@ bool guide_obj::render() const
 {
     static const GLfloat vertices[] =
     {
-        255, 0,  // top right corner
-        0, 0,    // top left corner
-        0, 143,      // bottom left corner
-        255, 143,    // bottom right corner
+        TEX_IMAGE_WIDTH-1, 0,                  // top right corner
+        0,                 0,                  // top left corner
+        0,                 TEX_IMAGE_HEIGHT-1, // bottom left corner
+        TEX_IMAGE_WIDTH-1, TEX_IMAGE_HEIGHT-1, // bottom right corner
     };
 
     static const GLfloat texVertices[] = { 1,0, 0,0, 0,1, 1, 1 };
@@ -222,7 +220,8 @@ bool guide_obj::render() const
             float y_translation = TOP_MARGIN + row * (TEX_IMAGE_HEIGHT + Y_IMAGE_SPACING);
             float scale = 1.0f;
 
-            if (row == selected_row && col == selected_col)
+            bool selected_tile = (row == selected_row && col == selected_col);
+            if (selected_tile)
             {
                 scale += SCALING_FACTOR;
                 x_translation -= SCALING_FACTOR * (TEX_IMAGE_WIDTH / 2);
@@ -243,23 +242,22 @@ bool guide_obj::render() const
             glDisableClientState(GL_TEXTURE_COORD_ARRAY_EXT);
 
             // draw selection rectangle
-            if (row == selected_row && col == selected_col)
+            if (selected_tile)
             {
                 glDisable(GL_TEXTURE_2D);
-                glColor3f(.5f, .5f, 0);
+                glColor3f(.5f, .5f, 0); // yellow
                 static const GLfloat selection_vertices[] =
                 {
-                    255,0,    0, 0,   
-                    0,0,      0,143,    
-                    0,143,    255,143, 
-                    255,143,  255, 0
+                    TEX_IMAGE_WIDTH-1,0,                       0,                0,
+                    0,                0,                       0,                TEX_IMAGE_HEIGHT-1,
+                    0,                TEX_IMAGE_HEIGHT-1,      TEX_IMAGE_WIDTH-1,TEX_IMAGE_HEIGHT-1,
+                    TEX_IMAGE_WIDTH-1,TEX_IMAGE_HEIGHT-1,      TEX_IMAGE_WIDTH-1,0
                 };
                 glVertexPointer(2, GL_FLOAT, 0, selection_vertices); // point to the vertices to be used
-                glDrawArrays(GL_LINES, 0, 8); // draw the vertixes
+                glDrawArrays(GL_LINES, 0, sizeof(selection_vertices)/sizeof(GLfloat)/2); // draw the vertixes
                 glColor3f(1.f, 1.f, 1.f);
                 glEnable(GL_TEXTURE_2D);
             }
-            glBindTexture(GL_TEXTURE_2D, 0);
 
             glDisableClientState(GL_VERTEX_ARRAY); // tell OpenGL that you're finished using the vertex arrayattribute
 
@@ -271,6 +269,7 @@ bool guide_obj::render() const
     return true;
 }
 
+/// @brief Run Windows event loop
 void guide_obj::run() const
 {
     // Loop until the user closes the window
@@ -288,7 +287,7 @@ void guide_obj::run() const
 
 void guide_obj::load_texture(int texture_index, const unsigned char* bmp)
 {
-    glBindTexture(GL_TEXTURE_2D, textures[texture_index]); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    glBindTexture(GL_TEXTURE_2D, textures[texture_index]); 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_IMAGE_WIDTH, TEX_IMAGE_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp);
 }
 
@@ -296,6 +295,6 @@ void guide_obj::load_text_texture(int texture_index, const char* text)
 {
     int width, height, size;
     const char* bytes = convert_text2bmp(text, width, height, size);
-    glBindTexture(GL_TEXTURE_2D, text_textures[texture_index]); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+    glBindTexture(GL_TEXTURE_2D, text_textures[texture_index]); 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, TEXT_BMP_WIDTH, TEXT_BMP_HEIGHT, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bytes);
 }

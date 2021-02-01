@@ -13,7 +13,11 @@ public:
 	curl_http(size_t initial_buf_size);
 	~curl_http();
 	bool exec(const char* url, const char* content_type);
+	/// @brief  get data bufer size
+	/// @return size
 	size_t get_data_size() const { return data_size; }
+	/// @brief  get data buffer
+	/// @return data buffer
 	const char* get_data() const { return buf.get(); }
 
 

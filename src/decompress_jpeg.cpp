@@ -10,6 +10,17 @@
 
 using namespace std;
 
+/// @brief          in-memory jpeg to bitmap decompressor
+///
+/// Initialize IL library if needed. Configure decompressor, decompress JPEG to RGB bitmap
+/// 
+/// @param in       jpeg data buffer 
+/// @param in_size  jpeg buffer size
+/// @param out      bitmap buffer
+/// @param out_size bitmap buffer size
+/// @param width    bitmap width
+/// @param height   bitmap  height
+/// @return         true if successful 
 bool decompress_jpeg(const char* in, int in_size, char* out, int& out_size, int& width, int& height)
 {
 

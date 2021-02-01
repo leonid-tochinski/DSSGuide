@@ -3,8 +3,8 @@
 #ifndef _TEXT2BMP_H_
 #define _TEXT2BMP_H_
 
-#define TEXT_BMP_WIDTH 1400
-#define TEXT_BMP_HEIGHT 70
+#define TEXT_BMP_WIDTH 700
+#define TEXT_BMP_HEIGHT 35
 
 
 const char* convert_text2bmp(const char* text, int& width, int& height, int& size);

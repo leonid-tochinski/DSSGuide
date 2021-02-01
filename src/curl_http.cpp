@@ -17,7 +17,11 @@ public:
 	~curl_global() { curl_global_cleanup(); }
 } curl_global_;
 
-
+/// @brief constructor
+///
+/// Initialize curl, allocated data buffer 
+/// 
+/// @param initial_buf_size initial buffer size for data
 curl_http::curl_http(size_t initial_buf_size) :
 	curl(0),
 	headers(0),
@@ -73,6 +77,13 @@ size_t curl_http::curl_callback(void* ptr, size_t size, size_t nmemb, void* usr)
 	return data_chunk_size;
 }
 
+/// @brief execute curl
+/// 
+/// Get file from URL, place it in memory. Increase buffer size if run out of memory
+/// 
+/// @param url URL address, i.e https://...
+/// @param content_type content type string, i.e application/json
+/// @return true if successful
 bool curl_http::exec(const char* url, const char* content_type)
 {
 	assert(curl);
