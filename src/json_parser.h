@@ -1,5 +1,9 @@
-// jansson wrapper
-// by L. Tochinski 2021
+/// @file    json_parser.h
+///
+/// jansson wrapper
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
 
 #ifndef JSON_PARSER_H_
 #define JSON_PARSER_H_

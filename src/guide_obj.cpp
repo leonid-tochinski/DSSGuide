@@ -1,5 +1,10 @@
-// by L. Tochinski 2021
-// All OpenGL specific stuff
+/// @file    guide_obj.cpp
+///
+/// guide object OpenGL class
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
+/// 
 #include <GLFW/glfw3.h>
 #include <fstream>
 #include <iostream>

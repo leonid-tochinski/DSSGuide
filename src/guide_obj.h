@@ -1,5 +1,7 @@
 /// @file    guide_obj.h
+///
 /// guide object OpenGL class
+/// 
 /// @author L. Tochinski 
 /// @date 02/21/2021
 

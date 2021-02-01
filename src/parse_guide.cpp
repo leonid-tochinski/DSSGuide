@@ -1,5 +1,9 @@
-// by L. Tochinski 2021
-// Parse Dysney Guide data utility
+/// @file    parse guide.cpp
+///
+/// fetch guide data from url and parse json
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
 
 #include <algorithm>
 #include <iostream>

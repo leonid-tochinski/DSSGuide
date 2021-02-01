@@ -1,6 +1,10 @@
-// Disney Guide specific business logic
-// Main module
-// By L. Tochinski 2021
+/// @file    disney_guide.cpp
+///
+/// Main module. Disney Guide specific business logic
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
+
 #include <memory>
 #include <string>
 #include <iostream>
@@ -157,6 +161,7 @@ bool disney_guide::initilize_item(const guide_item_type& guide_item, int texture
     if (error == true)
     {
         cerr << "bad image ID: " << img_id << ". Using stock image." << endl;
+        // TODO add path to stock jpeg same as exe
         auto stock_jpeg = std::fstream(STOCK_IMAGE, std::ios::in | std::ios::binary);
         unique_ptr<char[]> in(new char[BMP_BUF_SIZE]);
         stock_jpeg.read(in.get(), BMP_BUF_SIZE);

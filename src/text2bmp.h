@@ -1,5 +1,10 @@
-// Text to bitmap converter
-// By L.Tochinski 2021
+/// @file    text2bmp.h
+///
+/// text to bitmap converter
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
+
 #ifndef _TEXT2BMP_H_
 #define _TEXT2BMP_H_
 

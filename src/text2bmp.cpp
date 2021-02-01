@@ -1,5 +1,10 @@
-// Text to bitmap converter
-// By L.Tochinski 2021
+/// @file    text2bmp.cpp
+///
+/// text to bitmap converter
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
+
 
 // TODO make font and bitmap configurable
 
@@ -46,6 +51,7 @@ text2bmp::text2bmp(int width, int height) :
         throw 1;
     }
 
+    // TODO add path to name same as exe
     if (FT_New_Face(library, FONT_FILE_NAME, 0, &face))
     {
         cerr << "FreeType error: cannot create face object for " << FONT_FILE_NAME << " font" << endl;

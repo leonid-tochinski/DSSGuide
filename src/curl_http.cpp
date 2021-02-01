@@ -1,6 +1,11 @@
-// curl wrapper 
-// by L. Tochinski 2021
-// inspired by https://niranjanmalviya.wordpress.com/2018/06/23/get-json-data-using-curl/
+/// @file    curl_http.cpp
+///
+/// curl wrapper for getting json and jpeg data from web server
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
+
+// inspired by https://niranjanmalviya.wordpress.com/2018/06/23/get-json-data-using-curl/ and boost::property_tree
 
 #include <iostream>
 #include <string>

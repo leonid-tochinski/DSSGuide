@@ -1,4 +1,9 @@
-// by L. Tochinski 2021
+/// @file    curl_http.h
+///
+/// curl wrapper for getting json and jpeg data from web server
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
 
 #ifndef __CURL_HTTP_H_
 #define __CURL_HTTP_H_

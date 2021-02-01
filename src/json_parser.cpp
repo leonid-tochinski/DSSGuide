@@ -1,5 +1,9 @@
-// json parser
-// by L. Tochinski 2021
+/// @file    json_parser.h
+///
+/// jansson wrapper
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
 
 // TODO: Better jansson's json_t refs handling
 

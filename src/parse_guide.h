@@ -1,5 +1,9 @@
-// Parse Disney Guilde interface
-// by L. Tochinski 2021
+/// @file    parse guide.h
+///
+/// fetch guide data from url and parse json
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
 
 #ifndef PARSE_GUIDE_H_
 #define PARSE_GUIDE_H_

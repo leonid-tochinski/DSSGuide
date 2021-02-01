@@ -1,5 +1,9 @@
-// in-memory jpeg decompress
-// by L. Tochinski, 2021
+/// @file    decompress_jpeg.cpp
+///
+/// converts jpeg to RGB bitmap in memory
+/// 
+/// @author L. Tochinski 
+/// @date 02/21/2021
 
 // TODO: better cleanup on exit
 
